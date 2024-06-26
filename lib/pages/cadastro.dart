@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart' as http; // Importe o pacote http
+import 'dart:convert';
 
 class CadastroPage extends StatefulWidget {
   const CadastroPage({super.key});
@@ -14,6 +16,36 @@ class _CadastroPageState extends State<CadastroPage> {
   String nome = '';
   String email = '';
   String password = '';
+
+  Future<void> _register() async {
+    final url = Uri.parse('http://localhost:3000/v0/singup'); // Substitua pela sua URL de cadastro
+
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'username': nome,
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      print(response.body); // Adicionado para depuração
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Se a requisição for bem-sucedida
+        Navigator.of(context).pushNamed('/home');
+      } else {
+        // Se a requisição falhar
+        print('Erro: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erro de rede: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,12 +137,10 @@ class _CadastroPageState extends State<CadastroPage> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Ação a ser executada quando o botão é pressionado
-                      if (email != '' && password != '') {
-                        print('deu certo!');
-                        Navigator.of(context).pushNamed('/home');
+                      if (nome != '' && email != '' && password != '') {
+                        _register(); // Chama a função de cadastro
                       } else {
-                        print('errado');
+                        print('Preencha todos os campos');
                       }
                     },
                     style: ElevatedButton.styleFrom(

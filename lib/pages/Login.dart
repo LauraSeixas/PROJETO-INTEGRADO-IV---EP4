@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http; // Importe o pacote http
+import 'dart:convert'; // Importe o pacote convert para trabalhar com JSON
 
 import 'package:projeto/pages/Home.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -15,6 +17,29 @@ class _LoginPageState extends State<LoginPage> {
   bool _passwordVisible = false;
   String email = '';
   String password = '';
+  Future<void> _login() async {
+    final url = Uri.parse(
+        'http://localhost:3000/v0/singin'); // Substitua pela sua URL de login
+
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'password': password,
+      }),
+    );
+    print(response.body);
+    if (response.statusCode == 201) {
+      // Se a requisição for bem-sucedida
+      Navigator.of(context).pushNamed('/home');
+    } else {
+      // Se a requisição falhar
+      print('Erro: ${response.statusCode}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +129,8 @@ class _LoginPageState extends State<LoginPage> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Ação a ser executada quando o botão é pressionado
                       if (email != '' && password != '') {
-                        print('deu certo!');
-                        Navigator.of(context).pushNamed('/home');
+                        _login(); // Chama a função de login
                       } else {
                         print('errado');
                       }
@@ -129,35 +152,32 @@ class _LoginPageState extends State<LoginPage> {
                   height: 20,
                 ),
                 SizedBox(
-                 
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                          SizedBox(
-                            width: 130.0,
-                            height: 1.0,
-                            child: Divider(
-                              
-                              color: Color(0xFFD9D9D9),
-                              thickness: 1,
-                              
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: Text("ou"),
-                          ),
-                          SizedBox(
-                            width: 130.0,
-                            height: 1.0,
-                            child: Divider(
-                               color: Color(0xFFD9D9D9),
-                              thickness: 1,
-                            ),
-                          ),
-                        ],
+                      SizedBox(
+                        width: 130.0,
+                        height: 1.0,
+                        child: Divider(
+                          color: Color(0xFFD9D9D9),
+                          thickness: 1,
+                        ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Text("ou"),
+                      ),
+                      SizedBox(
+                        width: 130.0,
+                        height: 1.0,
+                        child: Divider(
+                          color: Color(0xFFD9D9D9),
+                          thickness: 1,
+                        ),
+                      ),
+                    ],
                   ),
+                ),
                 SizedBox(
                   height: 20,
                 ),
@@ -176,10 +196,13 @@ class _LoginPageState extends State<LoginPage> {
                             8.0), // Define o raio da borda do botão
                       ),
                     ),
-                    icon: FaIcon(FontAwesomeIcons.google, color: Colors.white), 
+                    icon: FaIcon(FontAwesomeIcons.google, color: Colors.white),
                     label: Text(
                       'Continuar com o Google',
-                      style: TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 14.0),
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14.0),
                     ),
                   ),
                 )
